@@ -5,7 +5,7 @@ const port = 3000;
 const app = express();
 const jsonArray = [];
 app.use(express.json());
-app.use(cookieParser())
+// app.use(cookieParser())
 // http is a stateless protocol. cookies are used to store small information 
 // in the client.
 app.get("/",(req,res)=>{
