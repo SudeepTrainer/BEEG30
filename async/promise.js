@@ -43,19 +43,26 @@ function getWeatherDetail(weather){
 }
 // const weather = getWeather();
 // console.log(weather);
-function onSuccess(data){
-    console.log(`Success ${data}`);
-}
-function onError(err){
-    console.log(`Error ${err}`);
-}
-// getWeather().then(onSuccess).catch(onError);
-getWeather()
-    .then(getWeatherDetail)
-    .then(onSuccess)
-    .catch(onError);
+// function onSuccess(data){
+//     console.log(`Success ${data}`);
+// }
+// function onError(err){
+//     console.log(`Error ${err}`);
+// }
+// // getWeather().then(onSuccess).catch(onError);
+// getWeather()
+//     .then(getWeatherDetail)
+//     .then(onSuccess)
+//     .catch(onError);
 
-fetch('https://jsonplaceholder.typicode.com/users')
-    .then(response => response.json())
-    .then(json => console.log(json))
+// fetch('https://jsonplaceholder.typicode.com/users')
+//     .then(response => response.json())
+//     .then(json => console.log(json))
 
+async function getUsers(){
+    const userResponse = await fetch('https://jsonplaceholder.typicode.com/users');
+    const usersJsonData = await userResponse.json();
+    console.log(usersJsonData);
+}
+
+getUsers();
