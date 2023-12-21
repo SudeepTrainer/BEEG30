@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 // const mongodbStore = require('connect-mongodb-session')(session)
 const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
-
+const Product = require('./model/product');
+const User = require('./model/user');
 const databaseUri = 'mongodb://127.0.0.1:27017/authapp';
 
 
@@ -14,15 +15,6 @@ async function db(){
 db()
 .then(res=>console.log("DB connected"))
 .catch(err=>console.log(`error ${err}`));
-
-// define the user schema
-const userSchema = new mongoose.Schema({
-    username:String,
-    password:String
-})
-
-// create a user model
-const User = mongoose.model("User",userSchema);
 
 // const store = new mongodbStore(
 //     {
@@ -65,8 +57,14 @@ const isAuthenticated = (req,res,next)=>{
         res.status(401).redirect("/login");
     }
 }
-application.get("/",isAuthenticated,(req,res)=>{
-    res.render('home');
+application.get("/",isAuthenticated,async (req,res)=>{
+    try{
+        const products = await Product.find({});
+        res.render('home',{products});
+    }catch(error){
+        console.log(error);
+        res.status(500).render('home',{error:"Internal server error"})
+    }
 })
 // Routing
 application.get("/logout",(req,res)=>{
