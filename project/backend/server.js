@@ -49,16 +49,37 @@ application.use(express.urlencoded({extended:true}));
 //     store:store
 // }));
 
-application.get("/",(req,res)=>{
+application.use((req,res,next)=>{
+ const {auth} = req.cookies;
+ if(auth){
+    req.isAuthenticated = true;
+ }else{
+    req.isAuthenticated = false;
+ }
+ next();
+})
+const isAuthenticated = (req,res,next)=>{
+    if(req.isAuthenticated){
+        next();
+    }else{
+        res.status(401).redirect("/login");
+    }
+}
+application.get("/",isAuthenticated,(req,res)=>{
     res.render('home');
 })
 // Routing
+application.get("/logout",(req,res)=>{
+    res.clearCookie("auth");
+    res.status(200).redirect("/login");
+})
+
 application.get("/login",(req,res)=>{
     res.render('login');
 })
 
 application.get("/register",(req,res)=>{
-    res.render('register');
+    res.render('register',{"error":""});
 })
 
 application.post('/register',async (req,res)=>{
