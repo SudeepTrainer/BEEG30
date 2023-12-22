@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
 const Product = require('./model/product');
 const User = require('./model/user');
+const CartItem = require('./model/cartitem');
 const databaseUri = 'mongodb://127.0.0.1:27017/authapp';
 
 
@@ -119,6 +120,48 @@ application.post('/login',async (req,res)=>{
     }catch(error){
         console.log(error);
         res.status(500).render('login',{'error':"Internal server error"})
+    }
+})
+
+application.get('/cart',async (req,res)=>{
+    try {
+        // get cart items from db
+        const cartItems = await CartItem.find({}).populate('product');
+        // get total of all the products prices
+        const total = cartItems.reduce((acc,item)=>{
+                        acc + item.quantity * item.product.price,0 
+                    })
+        res.render('cart',{cart:cartItems,total});
+    } catch (error) {
+        console.log(error);
+        res.status(500).render('cart',{'error':"Internal server error"})
+    }
+})
+
+application.post('/addToCart',async (req,res)=>{
+    try {
+        console.log(req.body);
+        const productId = req.body.productId;
+        const quantity = parseInt(req.body.quantity);
+        const product = await Product.findById(productId);
+        if(!product){
+            return res.status(404).send("Product not found");
+        }
+        const existingCartItem = await CartItem.findOne({product:productId});
+        if(existingCartItem){
+            existingCartItem.quantity += 1;
+            await existingCartItem.save()
+        }else{
+            await CartItem.create({
+                product:productId,
+                quantity:quantity
+            });
+        }
+        res.redirect("/");
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).render('cart',{'error':"Internal server error"})
     }
 })
 //start server
